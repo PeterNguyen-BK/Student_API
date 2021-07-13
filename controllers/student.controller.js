@@ -6,6 +6,7 @@ const moment = require('moment');
 module.exports.getStudents = async (req, res) => {
     const page = req.query.page;
     const limit = req.query.limit;
+    const searchTerm = req.query.term;
     const time_created = req.query.timeCreated ? new Date(req.query.timeCreated + ' 23:59:00Z') : '';
     const time_updated = req.query.timeUpdated ? new Date(req.query.timeUpdated + ' 23:59:00Z') : '';
     const classFilter = req.query.class;
@@ -22,8 +23,8 @@ module.exports.getStudents = async (req, res) => {
         students: []
     };
     let students;
-    if (time_created) { 
-        if (sortBy) students = await Student.find({ created_at: { $lte: time_created } }).populate('classes', 'name', 'CID').sort({ [sortBy]: orderBy }).exec();
+    if (time_created) {
+        if (sortBy) students = await Student.find({ $text: { $search: "\""+searchTerm+"\"" }, created_at: { $lte: time_created } }).populate('classes', ['name', 'CID']).sort({ [sortBy]: orderBy }).exec();
         else students = await Student.find({ created_at: { $lte: time_created } }).populate('classes', 'name').exec();
         result.totalRows = students.length;
         result.students = students.slice(startIndex, endIndex);
@@ -56,21 +57,22 @@ module.exports.getStudents = async (req, res) => {
             {
                 $lookup: {
                     from: "parents",
-                    localField: "_id",
+                    localField: "SID",
                     foreignField: "student",
                     as: "parents"
                 }
             },
             { $project: 
-                { name: 1, dateOfBirth: 1, parents: { $size: "$parents" } }
+                { _id: 0, name: 1, dateOfBirth: 1, parents: { $size: "$parents" } }
             },
             { $match: { parents: numOfParent } },
 
         ]).exec();
+
         result.totalRows = students.length;
         result.students = students.slice(startIndex, endIndex);
     }else {
-        if (sortBy) students = await Student.find().populate('classes', 'name', 'CID').sort({ [sortBy]: orderBy }).exec();
+        if (sortBy) students = await Student.find({ name: searchTerm }).populate('classes', 'name').sort({ [sortBy]: orderBy }).exec();
         else students = await Student.find().populate('classes', 'name').exec();
         
         result.totalRows = students.length;
@@ -100,13 +102,14 @@ module.exports.createStudent = async (req, res) => {
 
     let sid = 1;
     const lastStudent = await Student.findOne().sort({ created_at: -1 });
-    if (lastStudent) sid = lastStudent._id + 1; 
+    if (lastStudent) sid = lastStudent.SID + 1; 
 
     const student = new Student({
-        _id: sid,
+        _id: new mongoose.Types.ObjectId(),
         name: name,
         dateOfBirth: dob,
         gender: gender,
+        SID: sid,
         created_at: created_time,
         updated_at: updated_time,
         classes: classID
@@ -132,7 +135,7 @@ module.exports.createStudent = async (req, res) => {
 
 module.exports.updateStudent = async (req,res) => {
     const studentId = req.params.studentid;
-    const name = req.body.name;
+    const name = req.boenderdy.name;
     const dob = req.body.dob;
     const gender = req.body.gender;
     const addClass = req.body.classAdd;

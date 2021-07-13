@@ -7,6 +7,9 @@ module.exports.getClasses = async (req, res) => {
     const page = req.query.page;
     const limit = req.query.limit;
     const classes = await Class.find().populate('student', 'name').exec();
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    console.log(classes);
     const result = {
         page: page,
         limit: limit,
@@ -15,6 +18,7 @@ module.exports.getClasses = async (req, res) => {
     };
     result.totalRows = classes.length;
     result.classes = classes.slice(startIndex, endIndex);
+    res.json(result);
 }
 
 module.exports.createClass = async (req, res) => {

@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 
 const studentSchema = new mongoose.Schema({
-    _id: Number,
-    name: String,
+    _id: mongoose.Types.ObjectId,
+    name: { type: String, text: true },
     dateOfBirth: String,
     gender: String,
+    SID: Number,
     created_at: { type: Date, index: true },
     updated_at: { type: Date, index: true },
     classes: [{ type: mongoose.Types.ObjectId, ref: 'Class', index: true }]

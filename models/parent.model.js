@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 
 const parentSchema = new mongoose.Schema({
     _id: mongoose.Types.ObjectId,
-    name: String,
-    created_at: Date,
+    name: { type: String, index: true },
+    PID: Number,
+    created_at: { type: Date, index: true },
     updated_at: Date,
     student: Number
 });

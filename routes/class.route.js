@@ -2,12 +2,12 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/class.controller');
 
-router.get('/', controller.getClasses);
+router.route('/')
+    .get(controller.getClasses)
+    .post(controller.createClass);
 
-router.post('/', controller.createClass);
-
-router.put('/:classid', controller.updateClass);
-
-router.delete('/:classid', controller.deleteClass);
+router.route('/:classid')
+    .put(controller.updateClass)
+    .delete(controller.deleteClass);
 
 module.exports = router;

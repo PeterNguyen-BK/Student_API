@@ -6,7 +6,7 @@ const classSchema = new mongoose.Schema({
     CID: String,
     created_at: Date,
     updated_at: Date,
-    students: [{type: Number, ref: 'Student'}]
+    students: [{type: mongoose.Types.ObjectId, ref: 'Student'}]
 });
 
 const Class = mongoose.model('Class', classSchema);
