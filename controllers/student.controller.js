@@ -26,14 +26,14 @@ module.exports.getStudents = async (req, res) => {
     if (time_created) {
         if (sortBy) students = await Student.find({ $text: { $search: "\""+searchTerm+"\"" }, created_at: { $lte: time_created } }).populate('classes', ['name', 'CID']).sort({ [sortBy]: orderBy }).exec();
         else students = await Student.find({ created_at: { $lte: time_created } }).populate('classes', 'name').exec();
-        result.totalRows = students.length;
-        result.students = students.slice(startIndex, endIndex);
+        // result.totalRows = students.length;
+        // result.students = students.slice(startIndex, endIndex);
     } else if (time_updated) {
         if (sortBy) students = await Student.find({ updated_at: { $lte: time_updated } }).populate('classes', 'name', 'CID').sort({ [sortBy]: orderBy }).exec();
         else students = await Student.find({ updated_at: { $lte: time_updated } }).populate('classes', 'name').exec();
         
-        result.totalRows = students.length;
-        result.students = students.slice(startIndex, endIndex);
+        // result.totalRows = students.length;
+        // result.students = students.slice(startIndex, endIndex);
     } else if (classFilter) {
         if (sortBy)
             students = await Student.find().populate({
@@ -48,8 +48,8 @@ module.exports.getStudents = async (req, res) => {
                 select: 'name-_id'
             }).exec();
         
-        result.totalRows = students.length;
-        result.students = students.slice(startIndex, endIndex);
+        // result.totalRows = students.length;
+        // result.students = students.slice(startIndex, endIndex);
     }
     else if (numOfParent) {
         students = await Student.aggregate([
@@ -69,15 +69,14 @@ module.exports.getStudents = async (req, res) => {
 
         ]).exec();
 
-        result.totalRows = students.length;
-        result.students = students.slice(startIndex, endIndex);
+        // result.totalRows = students.length;
+        // result.students = students.slice(startIndex, endIndex);
     }else {
         if (sortBy) students = await Student.find({ name: searchTerm }).populate('classes', 'name').sort({ [sortBy]: orderBy }).exec();
         else students = await Student.find().populate('classes', 'name').exec();
-        
-        result.totalRows = students.length;
-        result.students = students.slice(startIndex, endIndex);
     }
+    result.totalRows = students.length;
+    result.students = students.slice(startIndex, endIndex);
     res.json(result);
 }
 
